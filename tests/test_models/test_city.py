@@ -1,23 +1,50 @@
 #!/usr/bin/python3
-""" """
-from tests.test_models.test_base_model import test_basemodel
-from models.city import City 
+"""Unit tests for the `city` module.
+"""
+import unittest
+from models import storage
+from models.city import City
+from datetime import datetime
 
-class test_City(test_basemodel):
-    """ """
+c1 = City()
+c2 = City(**c1.to_dict())
+c3 = City("hello", "wait", "in")
 
-    def __init__(self, *args, **kwargs):
-        """ """
-        super().__init__(*args, **kwargs)
-        self.name = "City" 
-        self.value = City
 
-    def test_state_id(self):
-        """ """
-        new = self.value()
-        self.assertEqual(type(new.state_id), str)
+class TestCity(unittest.TestCase):
+    """Test cases for the `City` class."""
 
-    def test_name(self):
-        """ """
-        new = self.value()
-        self.assertEqual(type(new.name), str)
+    def test_params(self):
+        """Test method for class attributes"""
+        k = f"{type(c1).__name__}.{c1.id}"
+        self.assertIsInstance(c1.name, str)
+        self.assertEqual(c3.name, "")
+        c1.name = "Nairobi"
+        self.assertEqual(c1.name, "Nairobi")
+        self.assertIn(k, storage.all())
+
+    def test_init(self):
+        """Test method for public instances"""
+        self.assertIsInstance(c1.id, str)
+        self.assertIsInstance(c1.created_at, datetime)
+        self.assertIsInstance(c1.updated_at, datetime)
+        self.assertEqual(c1.updated_at, c2.updated_at)
+
+    def test_save(self):
+        """Test method for save"""
+        old_update = c1.updated_at
+        c1.save()
+        self.assertNotEqual(c1.updated_at, old_update)
+
+    def test_todict(self):
+        """Test method for dict"""
+        a_dict = c2.to_dict()
+        self.assertIsInstance(a_dict, dict)
+        self.assertEqual(a_dict['__class__'], type(c2).__name__)
+        self.assertIn('created_at', a_dict.keys())
+        self.assertIn('updated_at', a_dict.keys())
+        self.assertNotEqual(c1, c2)
+
+
+if __name__ == "__main__":
+    unittest.main()

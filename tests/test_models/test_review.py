@@ -1,28 +1,56 @@
 #!/usr/bin/python3
-""" """
-from tests.test_models.test_base_model import test_basemodel
+"""Unit tests for the `review` module.
+"""
+import unittest
 from models.review import Review
+from models import storage
+from datetime import datetime
 
-class test_review(test_basemodel):
-    """ """
+r1 = Review()
+r2 = Review(**r1.to_dict())
+r3 = Review("hello", "wait", "in")
 
-    def __init__(self, *args, **kwargs):
-        """ """
-        super().__init__(*args, **kwargs)
-        self.name = "Review"
-        self.value = Review
 
-    def test_place_id(self):
-        """ """
-        new = self.value()
-        self.assertEqual(type(new.place_id), str)
+class TestReview(unittest.TestCase):
+    """Test cases for the `Review` class."""
 
-    def test_user_id(self):
-        """ """
-        new = self.value()
-        self.assertEqual(type(new.user_id), str)
+    def test_params(self):
+        """Test method for class attributes"""
 
-    def test_text(self):
-        """ """
-        new = self.value()
-        self.assertEqual(type(new.text), str)
+        k = f"{type(r1).__name__}.{r1.id}"
+        self.assertIn(k, storage.all())
+        self.assertIsInstance(r1.text, str)
+        self.assertIsInstance(r1.user_id, str)
+        self.assertIsInstance(r1.place_id, str)
+        self.assertEqual(r3.text, "")
+
+    def test_init(self):
+        """Test method for public instances"""
+        self.assertIsInstance(r1.id, str)
+        self.assertIsInstance(r1.created_at, datetime)
+        self.assertIsInstance(r1.updated_at, datetime)
+        self.assertEqual(r1.updated_at, r2.updated_at)
+
+    def test_str(self):
+        """Test method for str representation"""
+        string = f"[{type(r1).__name__}] ({r1.id}) {r1.__dict__}"
+        self.assertEqual(r1.__str__(), string)
+
+    def test_save(self):
+        """Test method for save"""
+        old_update = r1.updated_at
+        r1.save()
+        self.assertNotEqual(r1.updated_at, old_update)
+
+    def test_todict(self):
+        """Test method for dict"""
+        a_dict = r2.to_dict()
+        self.assertIsInstance(a_dict, dict)
+        self.assertEqual(a_dict['__class__'], type(r2).__name__)
+        self.assertIn('created_at', a_dict.keys())
+        self.assertIn('updated_at', a_dict.keys())
+        self.assertNotEqual(r1, r2)
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1,69 +1,66 @@
 #!/usr/bin/python3
-""" """
-from tests.test_models.test_base_model import test_basemodel
+"""Unit tests for the `city` module.
+"""
+import unittest
 from models.place import Place
+from models import storage
+from datetime import datetime
+
+p1 = Place()
+p2 = Place(**p1.to_dict())
+p3 = Place("hello", "wait", "in")
 
 
-class test_Place(test_basemodel):
-    """ """
+class TestPlace(unittest.TestCase):
+    """Test cases for the `Place` class."""
 
-    def __init__(self, *args, **kwargs):
-        """ """
-        super().__init__(*args, **kwargs)
-        self.name = "Place"
-        self.value = Place
+    def test_params(self):
+        """Test method for class attributes"""
 
-    def test_city_id(self):
-        """ """
-        new = self.value()
-        self.assertEqual(type(new.city_id), str)
+        k = f"{type(p1).__name__}.{p1.id}"
+        self.assertIsInstance(p1.name, str)
+        self.assertIn(k, storage.all())
+        self.assertEqual(p3.name, "")
 
-    def test_user_id(self):
-        """ """
-        new = self.value()
-        self.assertEqual(type(new.user_id), str)
+        self.assertIsInstance(p1.name, str)
+        self.assertIsInstance(p1.user_id, str)
+        self.assertIsInstance(p1.city_id, str)
+        self.assertIsInstance(p1.description, str)
+        self.assertIsInstance(p1.number_bathrooms, int)
+        self.assertIsInstance(p1.number_rooms, int)
+        self.assertIsInstance(p1.price_by_night, int)
+        self.assertIsInstance(p1.max_guest, int)
+        self.assertIsInstance(p1.longitude, float)
+        self.assertIsInstance(p1.latitude, float)
+        self.assertIsInstance(p1.amenity_ids, list)
 
-    def test_name(self):
-        """ """
-        new = self.value()
-        self.assertEqual(type(new.name), str)
+    def test_init(self):
+        """Test method for public instances"""
+        self.assertIsInstance(p1.id, str)
+        self.assertIsInstance(p1.created_at, datetime)
+        self.assertIsInstance(p1.updated_at, datetime)
+        self.assertEqual(p1.updated_at, p2.updated_at)
 
-    def test_description(self):
-        """ """
-        new = self.value()
-        self.assertEqual(type(new.description), str)
+    def test_str(self):
+        """Test method for str representation"""
+        string = f"[{type(p1).__name__}] ({p1.id}) {p1.__dict__}"
+        self.assertEqual(p1.__str__(), string)
 
-    def test_number_rooms(self):
-        """ """
-        new = self.value()
-        self.assertEqual(type(new.number_rooms), int)
+    def test_save(self):
+        """Test method for save"""
+        old_update = p1.updated_at
+        p1.save()
+        self.assertNotEqual(p1.updated_at, old_update)
 
-    def test_number_bathrooms(self):
-        """ """
-        new = self.value()
-        self.assertEqual(type(new.number_bathrooms), int)
+    def test_todict(self):
+        """Test method for dict"""
+        a_dict = p2.to_dict()
+        self.assertIsInstance(a_dict, dict)
+        self.assertEqual(a_dict['__class__'], type(p2).__name__)
+        self.assertIn('created_at', a_dict.keys())
+        self.assertIn('updated_at', a_dict.keys())
+        self.assertNotEqual(p1, p2)
 
-    def test_max_guest(self):
-        """ """
-        new = self.value()
-        self.assertEqual(type(new.max_guest), int)
 
-    def test_price_by_night(self):
-        """ """
-        new = self.value()
-        self.assertEqual(type(new.price_by_night), int)
-
-    def test_latitude(self):
-        """ """
-        new = self.value()
-        self.assertEqual(type(new.latitude), float)
-
-    def test_longitude(self):
-        """ """
-        new = self.value()
-        self.assertEqual(type(new.latitude), float) 
-
-    def test_amenity_ids(self):
-        """ """
-        new = self.value()
-        self.assertEqual(type(new.amenity_ids), list) 
+if __name__ == "__main__":
+    unittest.main()
